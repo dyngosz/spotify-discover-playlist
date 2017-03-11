@@ -24,7 +24,12 @@ import com.wrapper.spotify.models.User;
 
 public class ApiBuilder {
 	
-	final String clientId = "clientID";
+	/* Definitons:
+	 * Spotify's Weekly Playlist (SPW) - a list of tracks created every week
+	 * User Weekly Playlist (UWP) - predefined playlist where all the tracks from SPW will be send
+	 */
+	
+	final String clientId = "clientId";
 	final String clientSecret = "clientSecret";
 	final String redirectURI = "redirectURI";
 
@@ -88,25 +93,38 @@ public class ApiBuilder {
 		/* Getting current user based on authorization */
 		final CurrentUserRequest requestCurrentUser = api.getMe().build();
 		
-
 		try {
-			/* Getting tracks from Spotify's Discover Playlist */
+			/* Getting tracks from Spotify's Weekly Playlist */
 			final PlaylistTracksRequest requestForDiscoverWeeklyPlaylist = api
 					.getPlaylistTracks("spotify", "spotifyPlaylistID").build();
 			final List<String> tracksToAdd = new ArrayList<String>();
 			final Page<PlaylistTrack> page = requestForDiscoverWeeklyPlaylist.get();
 			final List<PlaylistTrack> playlistTracks = page.getItems();
-
+			
 			/* Creating List of tracks to add */
 			for (PlaylistTrack playlistTrack : playlistTracks) {
 				tracksToAdd.add(playlistTrack.getTrack().getUri());
 			}
 			
+			/* Creating a helper list which contains tracks from user Weekly Playlist */
+			final List<String> trackAlreadyExisting = new ArrayList<String>();
+			final PlaylistTracksRequest requestForUserDiscoverWeeklyPlaylist = api
+					.getPlaylistTracks("userName", "playlistID").build();
+			final Page<PlaylistTrack> pageUser = requestForUserDiscoverWeeklyPlaylist.get();
+			final List<PlaylistTrack> playlistUserTracks = pageUser.getItems();
+			for (PlaylistTrack userPlaylistTrack : playlistUserTracks) {
+				trackAlreadyExisting.add(userPlaylistTrack.getTrack().getUri());
+			}
+			
+			/* Removing from tracksToAdd those tracks which are already in user Weekly Playlist*/
+			/* It a way to avoid the duplication of tracks */
+			tracksToAdd.removeAll(trackAlreadyExisting);
+
 			final User user = requestCurrentUser.get();
 			
-			/* Adding tracks to from Spotify's playlist to User defined playlist*/
+			/* Adding tracks from Spotify's Weekly Playlist to user Weekly Playlist*/
 			final AddTrackToPlaylistRequest requestAddTracks = api
-					.addTracksToPlaylist(user.getId(), "userPlaylistID", tracksToAdd).build();
+					.addTracksToPlaylist(user.getId(), "playlistID", tracksToAdd).build();
 
 			requestAddTracks.get();
 
