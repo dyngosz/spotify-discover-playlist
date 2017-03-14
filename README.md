@@ -11,6 +11,7 @@ into user's own playlist.
 
 There are few apps already existing like [Mixkeepr](http://www.mixkeepr.com/) or [SaveDiscoverWeekly](http://www.savediscoverweekly.com).
 
-
 This is my own attempt using [Spotify Web JAVA API](https://github.com/thelinmichael/spotify-web-api-java).
 
+#### Blog
+Come check my blog post about Spotify and this particular project! **[Click](https://dyngosz.github.io/stuff/2017/03/12/magic-spotify.html)**
